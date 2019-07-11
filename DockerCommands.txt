@@ -1,0 +1,199 @@
+echo 'from flask import Flask
+
+app = Flask(__name__)
+
+@app.route("/")
+def hello():
+    return "hello world!"
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0")' > app.py
+	
+	
+	$ pip3 install flask
+	
+	python3 app.py 
+	
+	Create a file named Dockerfile and add the following content:
+
+FROM python:3.6.1-alpine
+RUN pip install flask
+CMD ["python","app.py"]
+COPY app.py /app.py
+
+$ docker image build -t python-hello-world .
+
+$ docker image ls
+
+Run the Docker image:
+
+$ docker run -p 5001:5000 -d python-hello-world
+
+$ docker run -p 8080:8080 -d springbootjpa
+
+$ docker container logs [container id] 
+ * Running on http://0.0.0.0:5000/ (Press CTRL+C to quit)
+172.17.0.1 - - [28/Jun/2017 19:35:33] "GET / HTTP/1.1" 200 -
+
+
+$ docker tag python-hello-world [dockerhub username]/python-hello-world
+
+$ docker push mharisali19/python-hello-world
+
+
+Update app.py by replacing the string "Hello World" with "Hello Beautiful World!" in app.py.
+
+Your file should have the following contents:
+
+from flask import Flask
+
+app = Flask(__name__)
+
+@app.route("/")
+def hello():
+    return "Hello Beautiful World!"
+
+
+if __name__ == "__main__":
+    app.run(host='0.0.0.0')
+	
+	
+$  docker image build -t mharisali19/python-hello-world .
+
+
+$ docker image history python-hello-world
+
+
+Run docker container stop [container id] for each container in the list that is running:
+
+$ docker container stop 0b2
+0b2
+Remove the stopped containers by running docker system prune:
+
+$ docker system prune
+WARNING! This will remove:
+        - all stopped containers
+        - all volumes not used by at least one container
+        - all networks not used by at least one container
+        - all dangling images
+Are you sure you want to continue? [y/N] y
+Deleted Containers:
+0b2ba61df37fb4038d9ae5d145740c63c2c211ae2729fc27dc01b82b5aaafa26
+
+Total reclaimed space: 300.3kB
+
+
+docker swarm init --advertise-addr eth0
+Swarm initialized: current node (vq7xx5j4dpe04rgwwm5ur63ce) is now a manager.
+
+To add a worker to this swarm, run the following command:
+
+    docker swarm join \
+    --token SWMTKN-1-50qba7hmo5exuapkmrj6jki8knfvinceo68xjmh322y7c8f0pj-87mjqjho30uue43oqbhhthjui \
+    10.0.120.3:2377
+	
+	
+	o add a manager to this swarm, run 'docker swarm join-token manager' and follow the instructions.
+You can think of Docker Swarm as a special mode that is activated by the command: docker swarm init. The --advertise-addr option specifies the address in which the other nodes will use to join the swarm.
+
+This docker swarm init command generates a join token. The token makes sure that no malicious nodes join the swarm. You need to use this token to join the other nodes to the swarm. For convenience, the output includes the full command docker swarm join, which you can just copy/paste to the other nodes.
+
+On both node2 and node3, copy and run the docker swarm join command that was outputted to your console by the last command.
+You now have a three-node swarm!
+
+
+$ docker service ls
+
+Check the running container of the service.
+
+To take a deeper look at the running tasks, use the command docker service ps. A task is another abstraction in Docker Swarm that represents the running instances of a service. In this case, there is a 1-1 mapping between a task and a container.
+
+$ docker service ps nginx1
+
+
+Test the service.
+
+Because of the routing mesh, you can send a request to any node of the swarm on port 80. This request will be automatically routed to the one node that is running the NGINX container.
+
+Try this command on each node:
+
+$ curl localhost:80
+node1
+
+Update your service with an updated number of replicas.
+
+Use the docker service command to update the NGINX service that you created previously to include 5 replicas. This is defining a new state for the service.
+
+$ docker service update --replicas=5 --detach=true nginx1
+nginx1
+When this command is run, the following events occur:
+
+The state of the service is updated to 5 replicas, which is stored in the swarm's internal storage.
+Docker Swarm recognizes that the number of replicas that is scheduled now does not match the declared state of 5.
+Docker Swarm schedules 4 more tasks (containers) in an attempt to meet the declared state for the service.
+This swarm is actively checking to see if the desired state is equal to actual state and will attempt to reconcile if needed.
+
+
+Check the running instances.
+
+After a few seconds, you should see that the swarm did its job and successfully started 4 more containers. Notice that the containers are scheduled across all three nodes of the cluster. The default placement strategy that is used to decide where new containers are to be run is the emptiest node, but that can be changed based on your needs.
+
+$ docker service ps nginx1
+
+Check the aggregated logs for the service.
+
+Another easy way to see which nodes those requests were routed to is to check the aggregated logs. You can get aggregated logs for the service by using the command docker service logs [service name]. This aggregates the output from every running container, that is, the output from docker container logs [container name].
+
+$ docker service logs nginx1
+
+Run the docker service update command:
+
+$ docker service update --image nginx:1.13 --detach=true nginx1
+This triggers a rolling update of the swarm. Quickly enter the command docker service ps nginx1 over and over to see the updates in real time.
+
+You can fine-tune the rolling update by using these options:
+
+--update-parallelism: specifies the number of containers to update immediately (defaults to 1).
+--update-delay: specifies the delay between finishing updating a set of containers before moving on to the next set.
+
+
+docker create --name springbootjpa_base -p 80:80 springbootjpa:latest
+
+
+---------------------
+
+Create a container to run it later on with required image.
+docker create --name <container-name> <image-name>
+Run docker container
+Run the docker container with the required image and specified command / process. ‘-d’ flag is used for running the container in background.
+docker run -it -d --name <container-name> <image-name> bash
+
+Image Source and Credits: http://www.slideshare.net/w_akram/docker-introduction-59904719
+Pause container
+Used to pause the processes running inside the container.
+docker pause <container-id/name>
+Unpause container
+Used to unpause the processes inside the container.
+docker unpause <container-id/name>
+Start container
+Start the container, if present in stopped state.
+docker start <container-id/name>
+Stop container
+To stop the container and processes running inside the container:
+docker stop <container-id/name>
+To stop all the running docker containers
+docker stop $(docker ps -a -q)
+Restart container
+It is used to restart the container as well as processes running inside the container.
+docker restart <container-id/name>
+Kill container
+We can kill the running container.
+docker kill <container-id/name>
+Destroy container
+Its preferred to destroy container, only if present in stopped state instead of forcefully destroying the running container.
+docker rm <container-id/name>
+	
+
+
+
+
